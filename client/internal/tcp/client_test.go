@@ -110,7 +110,10 @@ func (s *mockServer) handleConnection(t *testing.T, conn net.Conn) {
 		}
 		challengeBytes, _ := json.Marshal(challenge)
 		challengeBytes = append(challengeBytes, '\n')
-		conn.Write(challengeBytes)
+		if _, err := conn.Write(challengeBytes); err != nil {
+			t.Logf("Error writing challenge: %v", err)
+			return
+		}
 	case domain.TypePowSolution:
 		// Send a quote
 		quote := domain.Message{
@@ -119,7 +122,10 @@ func (s *mockServer) handleConnection(t *testing.T, conn net.Conn) {
 		}
 		quoteBytes, _ := json.Marshal(quote)
 		quoteBytes = append(quoteBytes, '\n')
-		conn.Write(quoteBytes)
+		if _, err := conn.Write(quoteBytes); err != nil {
+			t.Logf("Error writing quote: %v", err)
+			return
+		}
 	}
 }
 

@@ -124,7 +124,9 @@ func (s *serverImpl) handleGetQuote(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		s.logger.Error("Error encoding response", "error", err)
+	}
 }
 
 // handleGetChallenge handles the request to get a challenge without solving it
@@ -149,7 +151,9 @@ func (s *serverImpl) handleGetChallenge(w http.ResponseWriter, r *http.Request) 
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		s.logger.Error("Error encoding response", "error", err)
+	}
 }
 
 // handleGetStats handles the request to get stats
@@ -161,7 +165,9 @@ func (s *serverImpl) handleGetStats(w http.ResponseWriter, r *http.Request) {
 
 	s.logger.Debug("Handling stats request")
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(s.quoteService.GetStats())
+	if err := json.NewEncoder(w).Encode(s.quoteService.GetStats()); err != nil {
+		s.logger.Error("Error encoding stats", "error", err)
+	}
 }
 
 // handleStartLoad handles the request to start load testing
@@ -179,7 +185,9 @@ func (s *serverImpl) handleStartLoad(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]bool{"success": true})
+	if err := json.NewEncoder(w).Encode(map[string]bool{"success": true}); err != nil {
+		s.logger.Error("Error encoding response", "error", err)
+	}
 }
 
 // handleStopLoad handles the request to stop load testing
@@ -197,7 +205,9 @@ func (s *serverImpl) handleStopLoad(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]bool{"success": true})
+	if err := json.NewEncoder(w).Encode(map[string]bool{"success": true}); err != nil {
+		s.logger.Error("Error encoding response", "error", err)
+	}
 }
 
 // sendErrorResponse sends an error response
@@ -212,7 +222,9 @@ func (s *serverImpl) sendErrorResponse(w http.ResponseWriter, errMsg string) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusBadRequest)
-	json.NewEncoder(w).Encode(response)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		s.logger.Error("Error encoding error response", "error", err)
+	}
 }
 
 // GetQuote gets a quote from the server
