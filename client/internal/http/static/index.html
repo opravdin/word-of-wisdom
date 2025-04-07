@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word of Wisdom Client</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Word of Wisdom Client</h1>
+            <p>A client for the Word of Wisdom TCP server with Proof of Work</p>
+        </header>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>Quote</h2>
+            </div>
+            <div class="card-body">
+                <div id="quote-container">
+                    <div id="quote-text">Click "Get Quote" to receive a quote from the server</div>
+                    <div id="quote-author"></div>
+                </div>
+                <div id="loading" class="hidden">
+                    <div class="spinner"></div>
+                    <p>Solving Proof of Work challenge...</p>
+                </div>
+                <div id="error-message" class="hidden"></div>
+                <div class="button-group">
+                    <button id="get-quote" class="btn primary">
+                        <i class="fas fa-quote-right"></i> Get Quote
+                    </button>
+                    <button id="get-challenge" class="btn secondary">
+                        <i class="fas fa-puzzle-piece"></i> Get Unsolved Challenge
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>Load Testing</h2>
+            </div>
+            <div class="card-body">
+                <p>Create load on the server by continuously requesting quotes</p>
+                <div class="button-group">
+                    <button id="start-load" class="btn warning">
+                        <i class="fas fa-play"></i> Start Load Test
+                    </button>
+                    <button id="stop-load" class="btn danger" disabled>
+                        <i class="fas fa-stop"></i> Stop Load Test
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>Statistics</h2>
+            </div>
+            <div class="card-body">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-label">Total Requests</div>
+                        <div id="stat-requests" class="stat-value">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Successful</div>
+                        <div id="stat-success" class="stat-value">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Failed</div>
+                        <div id="stat-failure" class="stat-value">0</div>
+                    </div>
+                </div>
+                
+                <h3>Challenge Difficulty</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-label">Difficulty Level</div>
+                        <div id="stat-difficulty-level" class="stat-value">N/A</div>
+                        <div class="stat-desc">Leading zeros required</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Scrypt N</div>
+                        <div id="stat-difficulty" class="stat-value">N/A</div>
+                        <div class="stat-desc">CPU/Memory cost</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Scrypt R</div>
+                        <div id="stat-scrypt-r" class="stat-value">N/A</div>
+                        <div class="stat-desc">Block size</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Scrypt P</div>
+                        <div id="stat-scrypt-p" class="stat-value">N/A</div>
+                        <div class="stat-desc">Parallelization</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Estimated Complexity</div>
+                        <div id="stat-complexity" class="stat-value">N/A</div>
+                        <div class="stat-desc">Computational work</div>
+                    </div>
+                </div>
+                
+                <h3>Performance</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-label">Avg. Solve Time</div>
+                        <div id="stat-avg-time" class="stat-value">N/A</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Min Solve Time</div>
+                        <div id="stat-min-time" class="stat-value">N/A</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Max Solve Time</div>
+                        <div id="stat-max-time" class="stat-value">N/A</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Last Solve Time</div>
+                        <div id="stat-last-time" class="stat-value">N/A</div>
+                    </div>
+                </div>
+                
+                <h3>Load Test</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-label">Load Test Requests</div>
+                        <div id="stat-load-requests" class="stat-value">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Requests/Second</div>
+                        <div id="stat-load-rps" class="stat-value">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="challenge-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Unsolved Challenge</h2>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="challenge-info">
+                        <div class="info-item">
+                            <div class="info-label">Challenge ID:</div>
+                            <div id="challenge-id" class="info-value"></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Task:</div>
+                            <div id="challenge-task" class="info-value"></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Difficulty Level:</div>
+                            <div id="challenge-difficulty" class="info-value"></div>
+                            <div class="info-desc">Number of leading zeros required</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Scrypt N:</div>
+                            <div id="challenge-n" class="info-value"></div>
+                            <div class="info-desc">CPU/Memory cost parameter</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Scrypt R:</div>
+                            <div id="challenge-r" class="info-value"></div>
+                            <div class="info-desc">Block size parameter</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Scrypt P:</div>
+                            <div id="challenge-p" class="info-value"></div>
+                            <div class="info-desc">Parallelization parameter</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Key Length:</div>
+                            <div id="challenge-keylen" class="info-value"></div>
+                            <div class="info-desc">Output length in bytes</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Estimated Complexity:</div>
+                            <div id="challenge-complexity" class="info-value"></div>
+                            <div class="info-desc">Relative computational work required</div>
+                        </div>
+                    </div>
+                    <p class="note">
+                        Note: This challenge is not solved. The server expects a solution to be sent back.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Word of Wisdom Client &copy; 2025</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

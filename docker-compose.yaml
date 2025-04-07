@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:latest
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - app-network
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=
+      - REDIS_DB=0
+      - POW_SCRYPT_N=16384
+      - POW_SCRYPT_R=8
+      - POW_SCRYPT_P=1
+      - POW_KEY_LEN=32
+    depends_on:
+      - redis
+    networks:
+      - app-network
+    
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    environment:
+      - SERVER_HOST=server
+      - SERVER_PORT=8080
+      - HTTP_ADDRESS=0.0.0.0:3000
+    ports:
+      - "8088:3000"
+    depends_on:
+      - server
+    networks:
+      - app-network
+
+volumes:
+  redis_data:
+
+networks:
+  app-network:
+    driver: bridge
