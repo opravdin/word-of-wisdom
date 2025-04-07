@@ -63,14 +63,20 @@ func (h *ConnectionHandler) HandleConnection(ctx context.Context, conn net.Conn)
 			// Parse message
 			var msg protocol.Message
 			if err := json.Unmarshal(msgBytes, &msg); err != nil {
-				protocol.SendError(conn, protocol.ErrInvalidRequest, "Invalid JSON format")
+				if err := protocol.SendError(conn, protocol.ErrInvalidRequest, "Invalid JSON format"); err != nil {
+					h.logger.Error("Failed to send error response", "addr", clientAddr, "error", err)
+					return
+				}
 				continue
 			}
 
 			// Get handler for message type
 			handler, ok := h.Registry.GetHandler(msg.Type)
 			if !ok {
-				protocol.SendError(conn, protocol.ErrInvalidRequest, "Unknown message type")
+				if err := protocol.SendError(conn, protocol.ErrInvalidRequest, "Unknown message type"); err != nil {
+					h.logger.Error("Failed to send error response", "addr", clientAddr, "error", err)
+					return
+				}
 				continue
 			}
 
